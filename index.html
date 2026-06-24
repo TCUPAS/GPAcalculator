@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -275,7 +276,7 @@
 
 <script>
 const PREREQS = [
-  {id:'engl',   name:'English Composition',    defaultCr:3, hasLab:false},
+  {id:'engl',   name:'English Composition',    defaultCr:3, hasLab:false, allowAP:true},
   {id:'micro',  name:'Microbiology',            defaultCr:3, hasLab:true,  labName:'Microbiology Lab',       labCr:1},
   {id:'biochem',name:'Biochemistry',            defaultCr:3, hasLab:false},
   {id:'genetics',name:'Genetics',              defaultCr:3, hasLab:false},
@@ -304,7 +305,7 @@ function isBelowC(g) { return ['C-','D+','D','D-','F'].includes(g); }
 
 const state = {};
 PREREQS.forEach(p => {
-  state[p.id] = { attempts: [{grade:'A', cr:p.defaultCr}], splitLab: false };
+  state[p.id] = { attempts: [{grade:'A', cr:p.defaultCr}], splitLab: false, apCredit: false };
   if (p.hasLab) state[p.id+'_lab'] = { attempts: [{grade:'A', cr:p.labCr}] };
 });
 
@@ -347,6 +348,19 @@ function renderAll() {
     html += `<div class="section-card">`;
     html += `<div class="course-name">${p.name}</div>`;
 
+    if (p.allowAP) {
+      const apChecked = cs.apCredit;
+      html += `<label class="lab-toggle" style="margin-bottom:${apChecked?'0':'10px'}">
+        <input type="checkbox" ${apChecked?'checked':''} onchange="toggleAP('${p.id}',this.checked)">
+        Fulfilled via AP credit
+      </label>`;
+      if (apChecked) {
+        html += `<div style="font-size:12px;color:var(--text-secondary);margin-top:6px;padding:6px 10px;background:var(--bg-secondary);border-radius:var(--radius-md)">AP credit accepted for English — excluded from GPA calculation.</div>`;
+        html += `</div>`;
+        return;
+      }
+    }
+
     if (p.hasLab) {
       html += `<label class="lab-toggle">
         <input type="checkbox" ${splitLab?'checked':''} onchange="toggleLab('${p.id}',this.checked)">
@@ -374,6 +388,11 @@ function renderAll() {
 
   container.innerHTML = html;
   recalc();
+}
+
+function toggleAP(pid, val) {
+  state[pid].apCredit = val;
+  renderAll();
 }
 
 function toggleLab(pid, val) {
@@ -411,6 +430,7 @@ function recalc() {
 
   const allCids = [];
   PREREQS.forEach(p => {
+    if (state[p.id].apCredit) return;
     allCids.push(p.id);
     if (p.hasLab && state[p.id].splitLab) allCids.push(p.id+'_lab');
   });
