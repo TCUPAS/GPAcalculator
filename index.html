@@ -1,3652 +1,453 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2685.4">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Times; -webkit-text-stroke: #000000; min-height: 14.0px}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Times; -webkit-text-stroke: #000000}
-    p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Times; color: #0000e9; -webkit-text-stroke: #0000e9}
-    span.s1 {font-kerning: none}
-    span.s2 {font-kerning: none; color: #000000; -webkit-text-stroke: 0px #000000}
-    span.s3 {text-decoration: underline ; font-kerning: none; -webkit-text-stroke: 0px #0000e9}
-    td.td1 {margin: 0.5px 0.5px 0.5px 0.5px; padding: 1.0px 1.0px 1.0px 1.0px}
-    td.td2 {width: 774.0px; margin: 0.5px 0.5px 0.5px 0.5px; padding: 1.0px 1.0px 1.0px 1.0px}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TCU Physician Associate Studies — Prerequisite GPA Calculator</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg-secondary: #f5f5f3;
+    --bg-warning: #faeeda;
+    --text: #1a1a18;
+    --text-secondary: #5f5e5a;
+    --text-tertiary: #b4b2a9;
+    --text-warning: #854f0b;
+    --border: rgba(0,0,0,0.12);
+    --border-md: rgba(0,0,0,0.22);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --purple-bg: #eeedfe;
+    --purple-text: #3c3489;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1e1e1c;
+      --bg-secondary: #2a2a28;
+      --bg-warning: #412402;
+      --text: #f0ede8;
+      --text-secondary: #b4b2a9;
+      --text-tertiary: #5f5e5a;
+      --text-warning: #fac775;
+      --border: rgba(255,255,255,0.1);
+      --border-md: rgba(255,255,255,0.2);
+      --purple-bg: #26215c;
+      --purple-text: #cecbf6;
+    }
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--bg-secondary);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  .page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 1rem 4rem;
+  }
+
+  header {
+    margin-bottom: 2rem;
+  }
+
+  header h1 {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  header p {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .gpa-panel {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .gpa-hero { font-size: 52px; font-weight: 500; line-height: 1; color: var(--text); }
+  .gpa-label { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    flex: 1;
+    min-width: 220px;
+  }
+
+  .metric {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+  }
+
+  .metric-val { font-size: 18px; font-weight: 500; color: var(--text); }
+  .metric-lbl { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+  .section-card {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem;
+    margin-bottom: 10px;
+  }
+
+  .course-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .lab-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+
+  .lab-divider {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 0.5px solid var(--border);
+  }
+
+  .lab-section-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+
+  .attempt-row {
+    display: grid;
+    grid-template-columns: 1fr 90px 32px;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .attempt-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 3px; }
+
+  .cr-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 3px;
+  }
+
+  .cr-row span { font-size: 12px; color: var(--text-secondary); }
+
+  input[type="number"] {
+    width: 60px;
+    font-size: 13px;
+    padding: 4px 8px;
+    border: 0.5px solid var(--border-md);
+    border-radius: var(--radius-md);
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+  }
+
+  input[type="number"]:focus { box-shadow: 0 0 0 2px rgba(83,74,183,0.25); border-color: #534ab7; }
+
+  select {
+    width: 100%;
+    font-size: 13px;
+    padding: 6px 8px;
+    border: 0.5px solid var(--border-md);
+    border-radius: var(--radius-md);
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    cursor: pointer;
+  }
+
+  select:focus { box-shadow: 0 0 0 2px rgba(83,74,183,0.25); border-color: #534ab7; }
+
+  button {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 5px 12px;
+    border: 0.5px solid var(--border-md);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: background 0.1s;
+  }
+
+  button:hover { background: var(--bg-secondary); }
+  button:active { transform: scale(0.98); }
+
+  .remove-btn {
+    border: none;
+    padding: 4px;
+    color: var(--text-tertiary);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .remove-btn:hover { color: #a32d2d; background: transparent; }
+
+  .warn-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: var(--radius-md);
+    background: var(--bg-warning);
+    color: var(--text-warning);
+    margin-bottom: 4px;
+  }
+
+  .add-attempt { margin-top: 4px; font-size: 12px; }
+
+  .attempt-block { margin-bottom: 4px; }
+
+  footer {
+    margin-top: 2rem;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    text-align: center;
+    line-height: 1.6;
+  }
+</style>
 </head>
 <body>
-<p class="p1"><span class="s1"></span><br></p>
-<p class="p2"><span class="s1">Line wrap</span></p>
-<table cellspacing="0" cellpadding="0">
-  <tbody>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;!DOCTYPE html&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;html lang="en"&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;head&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;meta charset="UTF-8"&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;title&gt;TCU Physician Associate Studies — Prerequisite GPA Calculator&lt;/title&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p3"><span class="s2">&lt;link rel="stylesheet" href="<a href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"><span class="s3">https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css</span></a>"&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;style&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">:root {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">--bg: #ffffff;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">--bg-secondary: #f5f5f3;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">--bg-warning: #faeeda;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">--text: #1a1a18;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">--text-secondary: #5f5e5a;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">--text-tertiary: #b4b2a9;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">--text-warning: #854f0b;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">--border: rgba(0,0,0,0.12);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">--border-md: rgba(0,0,0,0.22);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">--radius-md: 8px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">--radius-lg: 12px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">--purple-bg: #eeedfe;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">--purple-text: #3c3489;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">@media (prefers-color-scheme: dark) {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">:root {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">--bg: #1e1e1c;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">--bg-secondary: #2a2a28;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">--bg-warning: #412402;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">--text: #f0ede8;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">--text-secondary: #b4b2a9;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">--text-tertiary: #5f5e5a;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">--text-warning: #fac775;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">--border: rgba(255,255,255,0.1);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">--border-md: rgba(255,255,255,0.2);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">--purple-bg: #26215c;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">--purple-text: #cecbf6;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">body {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">background: var(--bg-secondary);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">color: var(--text);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">font-size: 16px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">line-height: 1.5;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">min-height: 100vh;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">.page {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">max-width: 720px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">margin: 0 auto;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">padding: 2rem 1rem 4rem;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">header {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">margin-bottom: 2rem;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">header h1 {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">font-size: 20px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">font-weight: 500;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">color: var(--text);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">margin-bottom: 4px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">header p {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">font-size: 13px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">color: var(--text-secondary);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">.gpa-panel {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">background: var(--bg);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">border: 0.5px solid var(--border);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">border-radius: var(--radius-lg);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">padding: 1.25rem 1.5rem;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">margin-bottom: 1.5rem;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">display: flex;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">align-items: flex-end;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">justify-content: space-between;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">flex-wrap: wrap;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">gap: 1rem;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">.gpa-hero { font-size: 52px; font-weight: 500; line-height: 1; color: var(--text); }</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">.gpa-label { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">.metrics {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">display: grid;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">grid-template-columns: repeat(3, 1fr);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">gap: 10px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">flex: 1;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">min-width: 220px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">.metric {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">background: var(--bg-secondary);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">border-radius: var(--radius-md);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">padding: 10px 12px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">.metric-val { font-size: 18px; font-weight: 500; color: var(--text); }</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">.metric-lbl { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">.section-card {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">background: var(--bg);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">border: 0.5px solid var(--border);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">border-radius: var(--radius-lg);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">padding: 1rem 1.25rem;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">margin-bottom: 10px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">.course-name {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">font-size: 14px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">font-weight: 500;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">color: var(--text);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">margin-bottom: 8px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">.lab-toggle {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">display: flex;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">align-items: center;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">gap: 6px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">font-size: 12px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">color: var(--text-secondary);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">margin-bottom: 10px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">cursor: pointer;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">.lab-divider {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">margin-top: 12px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">padding-top: 10px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">border-top: 0.5px solid var(--border);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">.lab-section-title {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">font-size: 13px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">font-weight: 500;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">color: var(--text-secondary);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">margin-bottom: 8px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">.attempt-row {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">display: grid;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">grid-template-columns: 1fr 90px 32px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">gap: 8px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">align-items: center;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">margin-bottom: 6px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">.attempt-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 3px; }</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">.cr-row {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">display: flex;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">align-items: center;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">gap: 6px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">margin-top: 3px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">.cr-row span { font-size: 12px; color: var(--text-secondary); }</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">input[type="number"] {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">width: 60px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">font-size: 13px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">padding: 4px 8px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">border: 0.5px solid var(--border-md);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">border-radius: var(--radius-md);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">background: var(--bg);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">color: var(--text);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">outline: none;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">input[type="number"]:focus { box-shadow: 0 0 0 2px rgba(83,74,183,0.25); border-color: #534ab7; }</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">select {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">width: 100%;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">font-size: 13px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">padding: 6px 8px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">border: 0.5px solid var(--border-md);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">border-radius: var(--radius-md);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">background: var(--bg);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">color: var(--text);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">outline: none;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">cursor: pointer;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">select:focus { box-shadow: 0 0 0 2px rgba(83,74,183,0.25); border-color: #534ab7; }</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">button {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">font-family: inherit;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">font-size: 13px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">padding: 5px 12px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">border: 0.5px solid var(--border-md);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">border-radius: var(--radius-md);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">background: transparent;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">color: var(--text);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">cursor: pointer;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">display: inline-flex;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">align-items: center;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">gap: 4px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">transition: background 0.1s;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">button:hover { background: var(--bg-secondary); }</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">button:active { transform: scale(0.98); }</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">.remove-btn {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">border: none;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">padding: 4px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">color: var(--text-tertiary);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">background: transparent;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">display: flex;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">align-items: center;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">justify-content: center;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">.remove-btn:hover { color: #a32d2d; background: transparent; }</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">.warn-badge {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">display: inline-flex;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">align-items: center;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">gap: 4px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">font-size: 11px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">padding: 2px 8px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">border-radius: var(--radius-md);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">background: var(--bg-warning);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">color: var(--text-warning);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">margin-bottom: 4px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">.add-attempt { margin-top: 4px; font-size: 12px; }</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">.attempt-block { margin-bottom: 4px; }</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">footer {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">margin-top: 2rem;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">font-size: 12px;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">color: var(--text-tertiary);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">text-align: center;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">line-height: 1.6;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;/style&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;/head&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;body&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;div class="page"&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;header&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;h1&gt;TCU Physician Associate Studies&lt;/h1&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;p&gt;Prerequisite GPA Calculator — enter a grade for each required course. Add attempts for any retaken course.&lt;/p&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;/header&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;div class="gpa-panel"&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;div&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;div class="gpa-hero" id="gpa-out"&gt;—&lt;/div&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;div class="gpa-label"&gt;prerequisite GPA&lt;/div&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;/div&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;/div&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;div id="courses-container"&gt;&lt;/div&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;footer&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">Grades are rounded to whole points on a 4.0 scale: A/A+/A− = 4.0 &amp;nbsp;·&amp;nbsp; B+/B/B− = 3.0 &amp;nbsp;·&amp;nbsp; C+/C/C− = 2.0 &amp;nbsp;·&amp;nbsp; D+/D/D− = 1.0 &amp;nbsp;·&amp;nbsp; F = 0.0&lt;br&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">GPA is weighted by credit hours. All attempts at a course are included.&lt;br&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">Prerequisites must be passed with a grade of C or better. This tool is for self-assessment only.</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;/footer&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;/div&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;script&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">const PREREQS = [</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">{id:'engl', name:'English Composition', defaultCr:3, hasLab:false, allowAP:true},</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">{id:'micro', name:'Microbiology', defaultCr:3, hasLab:true, labName:'Microbiology Lab', labCr:1},</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">{id:'biochem',name:'Biochemistry', defaultCr:3, hasLab:false},</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">{id:'genetics',name:'Genetics', defaultCr:3, hasLab:false},</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">{id:'chem1', name:'Chemistry I', defaultCr:3, hasLab:true, labName:'Chemistry I Lab', labCr:1},</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">{id:'chem2', name:'Chemistry II', defaultCr:3, hasLab:true, labName:'Chemistry II Lab', labCr:1},</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">{id:'ochem', name:'Organic Chemistry I', defaultCr:3, hasLab:true, labName:'Organic Chemistry I Lab',labCr:1},</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">{id:'anat', name:'Human Anatomy (or A&amp;P 1)', defaultCr:3, hasLab:true, labName:'Anatomy Lab', labCr:1},</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">{id:'physio', name:'Human Physiology (or A&amp;P 2)', defaultCr:3, hasLab:true, labName:'Physiology Lab', labCr:1},</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">{id:'psyc', name:'Psychology', defaultCr:3, hasLab:false},</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">{id:'stats', name:'Statistics', defaultCr:3, hasLab:false},</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">{id:'physics',name:'Physics', defaultCr:3, hasLab:true, labName:'Physics Lab', labCr:1},</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">{id:'medterm',name:'Medical Terminology', defaultCr:1, hasLab:false},</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">];</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">const GRADES = ['A+','A','A-','B+','B','B-','C+','C','C-','D+','D','D-','F'];</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">function gradePoints(g) {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">if (['A+','A','A-'].includes(g)) return 4.0;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">if (['B+','B','B-'].includes(g)) return 3.0;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">if (['C+','C','C-'].includes(g)) return 2.0;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">if (['D+','D','D-'].includes(g)) return 1.0;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">return 0.0;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">function isBelowC(g) { return ['C-','D+','D','D-','F'].includes(g); }</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">const state = {};</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">PREREQS.forEach(p =&gt; {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">state[p.id] = { attempts: [{grade:'A', cr:p.defaultCr}], splitLab: false, apCredit: false };</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">if (p.hasLab) state[p.id+'_lab'] = { attempts: [{grade:'A', cr:p.labCr}] };</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">});</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">function gradeSelectHTML(cid, idx, val) {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">const opts = GRADES.map(g =&gt; `&lt;option value="${g}"${g===val?' selected':''}&gt;${g}&lt;/option&gt;`).join('');</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">return `&lt;select onchange="updateGrade('${cid}',${idx},this.value)"&gt;${opts}&lt;/select&gt;`;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">function renderAttempts(cid, attempts) {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">return attempts.map((a, i) =&gt; `</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;div class="attempt-block"&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;div class="attempt-row"&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;div&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;div class="attempt-label"&gt;Attempt ${i+1}&lt;/div&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;div class="cr-row"&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;span&gt;Credits:&lt;/span&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;input type="number" value="${a.cr}" min="0" max="12" step="0.5"</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">onchange="updateCr('${cid}',${i},this.value)"&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;/div&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;/div&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">${gradeSelectHTML(cid, i, a.grade)}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;button class="remove-btn" onclick="removeAttempt('${cid}',${i})" aria-label="Remove attempt"&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;i class="ti ti-x" style="font-size:14px"&gt;&lt;/i&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;/button&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;/div&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">${isBelowC(a.grade) ? `&lt;div class="warn-badge"&gt;&lt;i class="ti ti-alert-triangle" style="font-size:11px"&gt;&lt;/i&gt; Below C — does not meet minimum&lt;/div&gt;` : ''}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;/div&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">`).join('');</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">function renderAll() {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">const container = document.getElementById('courses-container');</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">let html = '';</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">PREREQS.forEach(p =&gt; {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">const cs = state[p.id];</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">const splitLab = p.hasLab &amp;&amp; cs.splitLab;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">const labState = p.hasLab ? state[p.id+'_lab'] : null;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">html += `&lt;div class="section-card"&gt;`;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">html += `&lt;div class="course-name"&gt;${p.name}&lt;/div&gt;`;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">if (p.allowAP) {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">const apChecked = cs.apCredit;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">html += `&lt;label class="lab-toggle" style="margin-bottom:${apChecked?'0':'10px'}"&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;input type="checkbox" ${apChecked?'checked':''} onchange="toggleAP('${p.id}',this.checked)"&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">Fulfilled via AP credit</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;/label&gt;`;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">if (apChecked) {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">html += `&lt;div style="font-size:12px;color:var(--text-secondary);margin-top:6px;padding:6px 10px;background:var(--bg-secondary);border-radius:var(--radius-md)"&gt;AP credit accepted for English — excluded from GPA calculation.&lt;/div&gt;`;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">html += `&lt;/div&gt;`;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">return;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">if (p.hasLab) {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">html += `&lt;label class="lab-toggle"&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;input type="checkbox" ${splitLab?'checked':''} onchange="toggleLab('${p.id}',this.checked)"&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">Lab was graded separately</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;/label&gt;`;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">html += renderAttempts(p.id, cs.attempts);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">html += `&lt;button class="add-attempt" onclick="addAttempt('${p.id}')"&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;i class="ti ti-plus" style="font-size:13px"&gt;&lt;/i&gt; Add attempt</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;/button&gt;`;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">if (splitLab &amp;&amp; labState) {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">html += `&lt;div class="lab-divider"&gt;`;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">html += `&lt;div class="lab-section-title"&gt;${p.labName}&lt;/div&gt;`;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">html += renderAttempts(p.id+'_lab', labState.attempts);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">html += `&lt;button class="add-attempt" onclick="addAttempt('${p.id}_lab')"&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;i class="ti ti-plus" style="font-size:13px"&gt;&lt;/i&gt; Add attempt</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;/button&gt;`;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">html += `&lt;/div&gt;`;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">html += `&lt;/div&gt;`;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">});</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">container.innerHTML = html;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">recalc();</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">function toggleAP(pid, val) {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">state[pid].apCredit = val;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">renderAll();</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">function toggleLab(pid, val) {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">state[pid].splitLab = val;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">renderAll();</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">function addAttempt(cid) {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">const p = PREREQS.find(x =&gt; x.id===cid || x.id+'_lab'===cid);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">const defaultCr = cid.endsWith('_lab') ? (p ? p.labCr : 1) : (p ? p.defaultCr : 3);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">state[cid].attempts.push({grade:'A', cr:defaultCr});</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">renderAll();</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">function removeAttempt(cid, i) {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">if (state[cid].attempts.length &lt;= 1) return;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">state[cid].attempts.splice(i, 1);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">renderAll();</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">function updateGrade(cid, i, val) {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">state[cid].attempts[i].grade = val;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">recalc();</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">const container = document.getElementById('courses-container');</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">const rows = container.querySelectorAll('.attempt-block');</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">function updateCr(cid, i, val) {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">state[cid].attempts[i].cr = parseFloat(val) || 0;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">recalc();</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">function recalc() {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">let totalPoints = 0, totalCr = 0, totalAttempts = 0, warnings = 0;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">const allCids = [];</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">PREREQS.forEach(p =&gt; {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">if (state[p.id].apCredit) return;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">allCids.push(p.id);</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">if (p.hasLab &amp;&amp; state[p.id].splitLab) allCids.push(p.id+'_lab');</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">});</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">allCids.forEach(cid =&gt; {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">const cs = state[cid];</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">if (!cs) return;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">cs.attempts.forEach(a =&gt; {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">if (a.cr &gt; 0) {</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">totalPoints += gradePoints(a.grade) * a.cr;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">totalCr += a.cr;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">totalAttempts++;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">if (isBelowC(a.grade)) warnings++;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">});</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">});</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">const gpa = totalCr &gt; 0 ? totalPoints / totalCr : null;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">document.getElementById('gpa-out').textContent = gpa !== null ? gpa.toFixed(2) : '—';</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">}</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">renderAll();</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;/script&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;/body&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p2"><span class="s1">&lt;/html&gt;</span></p>
-      </td>
-    </tr>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-      <td valign="middle" class="td2">
-        <p class="p1"><span class="s1"></span><br></p>
-      </td>
-    </tr>
-  </tbody>
-</table>
+<div class="page">
+
+  <header>
+    <h1>TCU Physician Associate Studies</h1>
+    <p>Prerequisite GPA Calculator — enter a grade for each required course. Add attempts for any retaken course.</p>
+  </header>
+
+  <div class="gpa-panel">
+    <div>
+      <div class="gpa-hero" id="gpa-out">—</div>
+      <div class="gpa-label">prerequisite GPA</div>
+    </div>
+  </div>
+
+  <div id="courses-container"></div>
+
+  <footer>
+    Grades are rounded to whole points on a 4.0 scale: A/A+/A− = 4.0 &nbsp;·&nbsp; B+/B/B− = 3.0 &nbsp;·&nbsp; C+/C/C− = 2.0 &nbsp;·&nbsp; D+/D/D− = 1.0 &nbsp;·&nbsp; F = 0.0<br>
+    GPA is weighted by credit hours. All attempts at a course are included.<br>
+    Prerequisites must be passed with a grade of C or better. This tool is for self-assessment only.
+  </footer>
+
+</div>
+
+<script>
+const PREREQS = [
+  {id:'engl',   name:'English Composition',    defaultCr:3, hasLab:false, allowAP:true},
+  {id:'micro',  name:'Microbiology',            defaultCr:3, hasLab:true,  labName:'Microbiology Lab',       labCr:1},
+  {id:'biochem',name:'Biochemistry',            defaultCr:3, hasLab:false},
+  {id:'genetics',name:'Genetics',              defaultCr:3, hasLab:false},
+  {id:'chem1',  name:'Chemistry I',             defaultCr:3, hasLab:true,  labName:'Chemistry I Lab',        labCr:1},
+  {id:'chem2',  name:'Chemistry II',            defaultCr:3, hasLab:true,  labName:'Chemistry II Lab',       labCr:1},
+  {id:'ochem',  name:'Organic Chemistry I',     defaultCr:3, hasLab:true,  labName:'Organic Chemistry I Lab',labCr:1},
+  {id:'anat',   name:'Human Anatomy (or A&P 1)',           defaultCr:3, hasLab:true,  labName:'Anatomy Lab',            labCr:1},
+  {id:'physio', name:'Human Physiology (or A&P 2)',        defaultCr:3, hasLab:true,  labName:'Physiology Lab',         labCr:1},
+  {id:'psyc',   name:'Psychology',              defaultCr:3, hasLab:false},
+  {id:'stats',  name:'Statistics',              defaultCr:3, hasLab:false},
+  {id:'physics',name:'Physics',                defaultCr:3, hasLab:true,  labName:'Physics Lab',            labCr:1},
+  {id:'medterm',name:'Medical Terminology',     defaultCr:1, hasLab:false},
+];
+
+const GRADES = ['A+','A','A-','B+','B','B-','C+','C','C-','D+','D','D-','F'];
+
+function gradePoints(g) {
+  if (['A+','A','A-'].includes(g)) return 4.0;
+  if (['B+','B','B-'].includes(g)) return 3.0;
+  if (['C+','C','C-'].includes(g)) return 2.0;
+  if (['D+','D','D-'].includes(g)) return 1.0;
+  return 0.0;
+}
+
+function isBelowC(g) { return ['C-','D+','D','D-','F'].includes(g); }
+
+const state = {};
+PREREQS.forEach(p => {
+  state[p.id] = { attempts: [{grade:'A', cr:p.defaultCr}], splitLab: false, apCredit: false };
+  if (p.hasLab) state[p.id+'_lab'] = { attempts: [{grade:'A', cr:p.labCr}] };
+});
+
+function gradeSelectHTML(cid, idx, val) {
+  const opts = GRADES.map(g => `<option value="${g}"${g===val?' selected':''}>${g}</option>`).join('');
+  return `<select onchange="updateGrade('${cid}',${idx},this.value)">${opts}</select>`;
+}
+
+function renderAttempts(cid, attempts) {
+  return attempts.map((a, i) => `
+    <div class="attempt-block">
+      <div class="attempt-row">
+        <div>
+          <div class="attempt-label">Attempt ${i+1}</div>
+          <div class="cr-row">
+            <span>Credits:</span>
+            <input type="number" value="${a.cr}" min="0" max="12" step="0.5"
+              onchange="updateCr('${cid}',${i},this.value)">
+          </div>
+        </div>
+        ${gradeSelectHTML(cid, i, a.grade)}
+        <button class="remove-btn" onclick="removeAttempt('${cid}',${i})" aria-label="Remove attempt">
+          <i class="ti ti-x" style="font-size:14px"></i>
+        </button>
+      </div>
+      ${isBelowC(a.grade) ? `<div class="warn-badge"><i class="ti ti-alert-triangle" style="font-size:11px"></i> Below C — does not meet minimum</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function renderAll() {
+  const container = document.getElementById('courses-container');
+  let html = '';
+
+  PREREQS.forEach(p => {
+    const cs = state[p.id];
+    const splitLab = p.hasLab && cs.splitLab;
+    const labState = p.hasLab ? state[p.id+'_lab'] : null;
+
+    html += `<div class="section-card">`;
+    html += `<div class="course-name">${p.name}</div>`;
+
+    if (p.allowAP) {
+      const apChecked = cs.apCredit;
+      html += `<label class="lab-toggle" style="margin-bottom:${apChecked?'0':'10px'}">
+        <input type="checkbox" ${apChecked?'checked':''} onchange="toggleAP('${p.id}',this.checked)">
+        Fulfilled via AP credit
+      </label>`;
+      if (apChecked) {
+        html += `<div style="font-size:12px;color:var(--text-secondary);margin-top:6px;padding:6px 10px;background:var(--bg-secondary);border-radius:var(--radius-md)">AP credit accepted for English — excluded from GPA calculation.</div>`;
+        html += `</div>`;
+        return;
+      }
+    }
+
+    if (p.hasLab) {
+      html += `<label class="lab-toggle">
+        <input type="checkbox" ${splitLab?'checked':''} onchange="toggleLab('${p.id}',this.checked)">
+        Lab was graded separately
+      </label>`;
+    }
+
+    html += renderAttempts(p.id, cs.attempts);
+    html += `<button class="add-attempt" onclick="addAttempt('${p.id}')">
+      <i class="ti ti-plus" style="font-size:13px"></i> Add attempt
+    </button>`;
+
+    if (splitLab && labState) {
+      html += `<div class="lab-divider">`;
+      html += `<div class="lab-section-title">${p.labName}</div>`;
+      html += renderAttempts(p.id+'_lab', labState.attempts);
+      html += `<button class="add-attempt" onclick="addAttempt('${p.id}_lab')">
+        <i class="ti ti-plus" style="font-size:13px"></i> Add attempt
+      </button>`;
+      html += `</div>`;
+    }
+
+    html += `</div>`;
+  });
+
+  container.innerHTML = html;
+  recalc();
+}
+
+function toggleAP(pid, val) {
+  state[pid].apCredit = val;
+  renderAll();
+}
+
+function toggleLab(pid, val) {
+  state[pid].splitLab = val;
+  renderAll();
+}
+
+function addAttempt(cid) {
+  const p = PREREQS.find(x => x.id===cid || x.id+'_lab'===cid);
+  const defaultCr = cid.endsWith('_lab') ? (p ? p.labCr : 1) : (p ? p.defaultCr : 3);
+  state[cid].attempts.push({grade:'A', cr:defaultCr});
+  renderAll();
+}
+
+function removeAttempt(cid, i) {
+  if (state[cid].attempts.length <= 1) return;
+  state[cid].attempts.splice(i, 1);
+  renderAll();
+}
+
+function updateGrade(cid, i, val) {
+  state[cid].attempts[i].grade = val;
+  recalc();
+  const container = document.getElementById('courses-container');
+  const rows = container.querySelectorAll('.attempt-block');
+}
+
+function updateCr(cid, i, val) {
+  state[cid].attempts[i].cr = parseFloat(val) || 0;
+  recalc();
+}
+
+function recalc() {
+  let totalPoints = 0, totalCr = 0, totalAttempts = 0, warnings = 0;
+
+  const allCids = [];
+  PREREQS.forEach(p => {
+    if (state[p.id].apCredit) return;
+    allCids.push(p.id);
+    if (p.hasLab && state[p.id].splitLab) allCids.push(p.id+'_lab');
+  });
+
+  allCids.forEach(cid => {
+    const cs = state[cid];
+    if (!cs) return;
+    cs.attempts.forEach(a => {
+      if (a.cr > 0) {
+        totalPoints += gradePoints(a.grade) * a.cr;
+        totalCr += a.cr;
+        totalAttempts++;
+        if (isBelowC(a.grade)) warnings++;
+      }
+    });
+  });
+
+  const gpa = totalCr > 0 ? totalPoints / totalCr : null;
+  document.getElementById('gpa-out').textContent = gpa !== null ? gpa.toFixed(2) : '—';
+}
+
+renderAll();
+</script>
 </body>
 </html>
