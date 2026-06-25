@@ -272,17 +272,17 @@
 <script>
 const PREREQS = [
   {id:'engl',   name:'English Composition',    defaultCr:3, hasLab:false, allowAP:true},
-  {id:'micro',  name:'Microbiology',            defaultCr:3, hasLab:true,  labName:'Microbiology Lab',       labCr:1},
+  {id:'micro',  name:'Microbiology',            defaultCr:4, hasLab:true,  labName:'Microbiology Lab',       labCr:1},
   {id:'biochem',name:'Biochemistry',            defaultCr:3, hasLab:false},
   {id:'genetics',name:'Genetics',              defaultCr:3, hasLab:false},
-  {id:'chem1',  name:'Chemistry I',             defaultCr:3, hasLab:true,  labName:'Chemistry I Lab',        labCr:1},
-  {id:'chem2',  name:'Chemistry II',            defaultCr:3, hasLab:true,  labName:'Chemistry II Lab',       labCr:1},
-  {id:'ochem',  name:'Organic Chemistry I',     defaultCr:3, hasLab:true,  labName:'Organic Chemistry I Lab',labCr:1},
-  {id:'anat',   name:'Human Anatomy (or A&P 1)',           defaultCr:3, hasLab:true,  labName:'Anatomy Lab',            labCr:1},
-  {id:'physio', name:'Human Physiology (or A&P 2)',        defaultCr:3, hasLab:true,  labName:'Physiology Lab',         labCr:1},
+  {id:'chem1',  name:'Chemistry I',             defaultCr:4, hasLab:true,  labName:'Chemistry I Lab',        labCr:1},
+  {id:'chem2',  name:'Chemistry II',            defaultCr:4, hasLab:true,  labName:'Chemistry II Lab',       labCr:1},
+  {id:'ochem',  name:'Organic Chemistry I',     defaultCr:4, hasLab:true,  labName:'Organic Chemistry I Lab',labCr:1},
+  {id:'anat',   name:'Human Anatomy (or A&P 1)',           defaultCr:4, hasLab:true,  labName:'Anatomy Lab',            labCr:1},
+  {id:'physio', name:'Human Physiology (or A&P 2)',        defaultCr:4, hasLab:true,  labName:'Physiology Lab',         labCr:1},
   {id:'psyc',   name:'Psychology',              defaultCr:3, hasLab:false},
   {id:'stats',  name:'Statistics',              defaultCr:3, hasLab:false},
-  {id:'physics',name:'Physics',                defaultCr:3, hasLab:true,  labName:'Physics Lab',            labCr:1},
+  {id:'physics',name:'Physics',                defaultCr:4, hasLab:true,  labName:'Physics Lab',            labCr:1},
   {id:'medterm',name:'Medical Terminology',     defaultCr:1, hasLab:false},
 ];
 
@@ -392,12 +392,27 @@ function toggleAP(pid, val) {
 
 function toggleLab(pid, val) {
   state[pid].splitLab = val;
+  if (val) {
+    // Split: course = 3cr, lab = 1cr
+    state[pid].attempts.forEach(a => a.cr = 3);
+    state[pid+'_lab'].attempts.forEach(a => a.cr = 1);
+  } else {
+    // Combined: course = 4cr
+    state[pid].attempts.forEach(a => a.cr = 4);
+  }
   renderAll();
 }
 
 function addAttempt(cid) {
   const p = PREREQS.find(x => x.id===cid || x.id+'_lab'===cid);
-  const defaultCr = cid.endsWith('_lab') ? (p ? p.labCr : 1) : (p ? p.defaultCr : 3);
+  let defaultCr;
+  if (cid.endsWith('_lab')) {
+    defaultCr = 1;
+  } else if (p && p.hasLab) {
+    defaultCr = state[cid].splitLab ? 3 : 4;
+  } else {
+    defaultCr = p ? p.defaultCr : 3;
+  }
   state[cid].attempts.push({grade:'A', cr:defaultCr});
   renderAll();
 }
