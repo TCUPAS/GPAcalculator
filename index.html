@@ -257,11 +257,6 @@
       <div class="gpa-hero" id="gpa-out">—</div>
       <div class="gpa-label">prerequisite GPA</div>
     </div>
-    <div class="metrics">
-      <div class="metric"><div class="metric-val" id="s-attempts">—</div><div class="metric-lbl">total attempts</div></div>
-      <div class="metric"><div class="metric-val" id="s-credits">—</div><div class="metric-lbl">credit hours</div></div>
-      <div class="metric"><div class="metric-val" id="s-warnings" style="color:var(--text)">—</div><div class="metric-lbl">below-C grades</div></div>
-    </div>
   </div>
 
   <div id="courses-container"></div>
@@ -283,8 +278,8 @@ const PREREQS = [
   {id:'chem1',  name:'Chemistry I',             defaultCr:3, hasLab:true,  labName:'Chemistry I Lab',        labCr:1},
   {id:'chem2',  name:'Chemistry II',            defaultCr:3, hasLab:true,  labName:'Chemistry II Lab',       labCr:1},
   {id:'ochem',  name:'Organic Chemistry I',     defaultCr:3, hasLab:true,  labName:'Organic Chemistry I Lab',labCr:1},
-  {id:'anat',   name:'Human Anatomy',           defaultCr:3, hasLab:true,  labName:'Anatomy Lab',            labCr:1},
-  {id:'physio', name:'Human Physiology',        defaultCr:3, hasLab:true,  labName:'Physiology Lab',         labCr:1},
+  {id:'anat',   name:'Human Anatomy (or A&P 1)',           defaultCr:3, hasLab:true,  labName:'Anatomy Lab',            labCr:1},
+  {id:'physio', name:'Human Physiology (or A&P 2)',        defaultCr:3, hasLab:true,  labName:'Physiology Lab',         labCr:1},
   {id:'psyc',   name:'Psychology',              defaultCr:3, hasLab:false},
   {id:'stats',  name:'Statistics',              defaultCr:3, hasLab:false},
   {id:'physics',name:'Physics',                defaultCr:3, hasLab:true,  labName:'Physics Lab',            labCr:1},
@@ -450,11 +445,6 @@ function recalc() {
 
   const gpa = totalCr > 0 ? totalPoints / totalCr : null;
   document.getElementById('gpa-out').textContent = gpa !== null ? gpa.toFixed(2) : '—';
-  document.getElementById('s-attempts').textContent = totalAttempts;
-  document.getElementById('s-credits').textContent = totalCr % 1 === 0 ? totalCr : totalCr.toFixed(1);
-  const wEl = document.getElementById('s-warnings');
-  wEl.textContent = warnings;
-  wEl.style.color = warnings > 0 ? 'var(--text-warning)' : 'var(--text)';
 }
 
 renderAll();
